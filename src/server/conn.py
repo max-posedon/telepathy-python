@@ -38,6 +38,7 @@ from telepathy.interfaces import (CONN_INTERFACE,
                                   CONN_INTERFACE_CAPABILITIES,
                                   CONN_INTERFACE_PRESENCE,
                                   CONN_INTERFACE_RENAMING,
+                                  CONNECTION_INTERFACE_CONTACTS,
                                   CONNECTION_INTERFACE_CONTACT_LIST,
                                   CONNECTION_INTERFACE_MAIL_NOTIFICATION,
                                   CONNECTION_INTERFACE_REQUESTS,
@@ -611,7 +612,24 @@ from telepathy._generated.Connection_Interface_Simple_Presence \
         import ConnectionInterfaceSimplePresence
 
 from telepathy._generated.Connection_Interface_Contacts \
-        import ConnectionInterfaceContacts
+        import ConnectionInterfaceContacts as _ConnectionInterfaceContacts
+
+class ConnectionInterfaceContacts(_ConnectionInterfaceContacts, DBusProperties):
+
+    _contact_attribute_interfaces = {
+        CONN_INTERFACE : 'contact-id',
+    }
+
+    def __init__(self):
+        _ConnectionInterfaceContacts.__init__(self)
+        DBusProperties.__init__(self)
+
+        self._implement_property_get(CONNECTION_INTERFACE_CONTACTS, {
+            'ContactAttributeInterfaces': self.get_contact_attribute_interfaces,
+        })
+
+    def get_contact_attribute_interfaces(self):
+        return self._contact_attribute_interfaces.keys()
 
 from telepathy._generated.Connection_Interface_Contact_List \
         import ConnectionInterfaceContactList as _ConnectionInterfaceContactList
