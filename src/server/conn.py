@@ -97,7 +97,8 @@ class Connection(_Connection, DBusProperties):
         self._implement_property_get(CONN_INTERFACE, {
                 'SelfHandle': lambda: dbus.UInt32(self.GetSelfHandle()),
                 'Interfaces': lambda: dbus.Array(self.GetInterfaces(), signature='s'),
-                'Status': lambda: dbus.UInt32(self.GetStatus())
+                'Status': lambda: dbus.UInt32(self.GetStatus()),
+                'HasImmortalHandles': lambda: True,
                  })
 
         self._proto = proto # Protocol name
@@ -106,7 +107,7 @@ class Connection(_Connection, DBusProperties):
         self._status = CONNECTION_STATUS_DISCONNECTED
 
         self._self_handle = NoneHandle()
-        self._handles = weakref.WeakValueDictionary()
+        self._handles = {}
         self._next_handle_id = 1
         self._client_handles = {}
 
@@ -285,15 +286,7 @@ class Connection(_Connection, DBusProperties):
 
     @dbus.service.method(CONN_INTERFACE, in_signature='uau', out_signature='', sender_keyword='sender')
     def HoldHandles(self, handle_type, handles, sender):
-        self.check_connected()
-        self.check_handle_type(handle_type)
-
-        for handle in handles:
-            self.check_handle(handle_type, handle)
-
-        for handle in handles:
-            hand = self._handles[handle_type, handle]
-            self.add_client_handle(hand, sender)
+        pass
 
     @dbus.service.method(CONN_INTERFACE, in_signature='uau', out_signature='', sender_keyword='sender')
     def ReleaseHandles(self, handle_type, handles, sender):
