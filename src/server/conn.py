@@ -631,6 +631,31 @@ class ConnectionInterfaceContacts(_ConnectionInterfaceContacts, DBusProperties):
     def get_contact_attribute_interfaces(self):
         return self._contact_attribute_interfaces.keys()
 
+    def GetContactAttributes(self, handles, interfaces, hold):
+        supported_interfaces = set()
+        for interface in interfaces:
+            if interface in self.attributes:
+                supported_interfaces.add(interface)
+
+        handle_type = HANDLE_TYPE_CONTACT
+        ret = dbus.Dictionary(signature='ua{sv}')
+        for handle in handles:
+            ret[handle] = dbus.Dictionary(signature='sv')
+
+        functions = {
+            CONN_INTERFACE: lambda x: zip(x, self.InspectHandles(handle_type, x)),
+        }
+
+        supported_interfaces.add(CONN_INTERFACE)
+
+        for interface in supported_interfaces:
+            interface_attribute = interface + '/' + self._contact_attribute_interfaces[interface]
+            results = functions[interface](handles)
+            for handle, value in results:
+                ret[int(handle)][interface_attribute] = value
+
+        return ret
+
 from telepathy._generated.Connection_Interface_Contact_List \
         import ConnectionInterfaceContactList as _ConnectionInterfaceContactList
 
