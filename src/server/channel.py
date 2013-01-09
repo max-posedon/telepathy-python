@@ -31,6 +31,7 @@ from telepathy.interfaces import (CHANNEL_INTERFACE,
                                   CHANNEL_INTERFACE_DTMF,
                                   CHANNEL_INTERFACE_GROUP,
                                   CHANNEL_INTERFACE_HOLD,
+                                  CHANNEL_INTERFACE_MESSAGES,
                                   CHANNEL_INTERFACE_PASSWORD,
                                   CHANNEL_TYPE_CONTACT_LIST,
                                   CHANNEL_TYPE_FILE_TRANSFER,
@@ -473,3 +474,45 @@ class ChannelInterfacePassword(_ChannelInterfacePassword):
 
 
 from telepathy._generated.Channel_Interface_Call_State import ChannelInterfaceCallState
+
+from telepathy._generated.Channel_Interface_Messages \
+        import ChannelInterfaceMessages as _ChannelInterfaceMessages
+
+class ChannelInterfaceMessages(_ChannelInterfaceMessages):
+
+    _supported_content_types = []
+    #_message_types = []
+    _message_part_support_flags = 0
+    _pending_messages = []
+    _delivery_reporting_support = 0
+
+    def __init__(self):
+        _ChannelInterfaceMessages.__init__(self)
+        self._implement_property_get(CHANNEL_INTERFACE_MESSAGES, {
+            'SupportedContentTypes': lambda: dbus.Array(self._get_supported_content_types(), signature='as'),
+            #'MessageTypes': lambda: dbus.Array(self._get_message_types(), signature='au'),
+            'MessagePartSupportFlags': lambda: dbus.UInt32(self._get_message_part_support_flags()),
+            'PendingMessages': lambda: dbus.Array(self._get_pending_messages(), signature='aaa{sv}'),
+            'DeliveryReportingSupport': lambda: dbus.UInt32(self._get_delivery_reporting_support()),
+        })
+        self._add_immutable_properties({
+            'SupportedContentTypes': CHANNEL_INTERFACE_MESSAGES,
+            #'MessageTypes': CHANNEL_INTERFACE_MESSAGES,
+            'MessagePartSupportFlags': CHANNEL_INTERFACE_MESSAGES,
+            'DeliveryReportingSupport': CHANNEL_INTERFACE_MESSAGES,
+        })
+
+    def _get_supported_content_types(self):
+        return self._supported_content_types
+
+    #def _get_message_types(self):
+    #    return self._message_types
+
+    def _get_message_part_support_flags(self):
+        return self._message_part_support_flags
+
+    def _get_pending_messages(self):
+        return self._pending_messages
+
+    def _get_delivery_reporting_support(self):
+        return self._delivery_reporting_support
