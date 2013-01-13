@@ -26,6 +26,7 @@ import weakref
 from telepathy.constants import (CONNECTION_STATUS_DISCONNECTED,
                                  CONNECTION_STATUS_CONNECTED,
                                  CONTACT_LIST_STATE_NONE,
+                                 CONTACT_METADATA_STORAGE_TYPE_NONE,
                                  HANDLE_TYPE_NONE,
                                  HANDLE_TYPE_CONTACT,
                                  LAST_HANDLE_TYPE)
@@ -39,6 +40,7 @@ from telepathy.interfaces import (CONN_INTERFACE,
                                   CONN_INTERFACE_PRESENCE,
                                   CONN_INTERFACE_RENAMING,
                                   CONNECTION_INTERFACE_CONTACTS,
+                                  CONNECTION_INTERFACE_CONTACT_GROUPS,
                                   CONNECTION_INTERFACE_CONTACT_LIST,
                                   CONNECTION_INTERFACE_MAIL_NOTIFICATION,
                                   CONNECTION_INTERFACE_REQUESTS,
@@ -697,3 +699,31 @@ class ConnectionInterfaceContactList(_ConnectionInterfaceContactList, DBusProper
 
     def _get_download_at_connection(self):
         return self._download_at_connection
+
+from telepathy._generated.Connection_Interface_Contact_Groups \
+        import ConnectionInterfaceContactGroups as _ConnectionInterfaceContactGroups
+
+class ConnectionInterfaceContactGroups(_ConnectionInterfaceContactGroups, DBusProperties):
+
+    _disjoint_groups = False
+    _group_storage = CONTACT_METADATA_STORAGE_TYPE_NONE
+    _groups = []
+
+    def __init__(self):
+        _ConnectionInterfaceContactGroups.__init__(self)
+        DBusProperties.__init__(self)
+
+        self._implement_property_get(CONNECTION_INTERFACE_CONTACT_GROUPS, {
+            'DisjointGroups': lambda: dbus.Boolean(self._get_disjoint_groups()),
+            'GroupStorage': lambda: dbus.UInt32(self._get_group_storage()),
+            'Groups': lambda: dbus.Array(self._get_groups(), signature='s'),
+        })
+
+    def _get_disjoint_groups(self):
+        return self._disjoint_groups
+
+    def _get_group_storage(self):
+        return self._group_storage
+
+    def _get_groups(self):
+        return self._groups
