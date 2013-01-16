@@ -481,7 +481,7 @@ from telepathy._generated.Channel_Interface_Messages \
 class ChannelInterfaceMessages(_ChannelInterfaceMessages):
 
     _supported_content_types = []
-    #_message_types = []
+    _message_types = [CHANNEL_TEXT_MESSAGE_TYPE_NORMAL]
     _message_part_support_flags = 0
     _pending_messages = []
     _delivery_reporting_support = 0
@@ -489,15 +489,15 @@ class ChannelInterfaceMessages(_ChannelInterfaceMessages):
     def __init__(self):
         _ChannelInterfaceMessages.__init__(self)
         self._implement_property_get(CHANNEL_INTERFACE_MESSAGES, {
-            'SupportedContentTypes': lambda: dbus.Array(self._get_supported_content_types(), signature='as'),
-            #'MessageTypes': lambda: dbus.Array(self._get_message_types(), signature='au'),
+            'SupportedContentTypes': lambda: dbus.Array(self._get_supported_content_types(), signature='s'),
+            'MessageTypes': lambda: dbus.Array(self._get_message_types(), signature='u'),
             'MessagePartSupportFlags': lambda: dbus.UInt32(self._get_message_part_support_flags()),
-            'PendingMessages': lambda: dbus.Array(self._get_pending_messages(), signature='aaa{sv}'),
+            'PendingMessages': lambda: dbus.Array(self._get_pending_messages(), signature='aa{sv}'),
             'DeliveryReportingSupport': lambda: dbus.UInt32(self._get_delivery_reporting_support()),
         })
         self._add_immutable_properties({
             'SupportedContentTypes': CHANNEL_INTERFACE_MESSAGES,
-            #'MessageTypes': CHANNEL_INTERFACE_MESSAGES,
+            'MessageTypes': CHANNEL_INTERFACE_MESSAGES,
             'MessagePartSupportFlags': CHANNEL_INTERFACE_MESSAGES,
             'DeliveryReportingSupport': CHANNEL_INTERFACE_MESSAGES,
         })
@@ -505,8 +505,8 @@ class ChannelInterfaceMessages(_ChannelInterfaceMessages):
     def _get_supported_content_types(self):
         return self._supported_content_types
 
-    #def _get_message_types(self):
-    #    return self._message_types
+    def _get_message_types(self):
+        return self._message_types
 
     def _get_message_part_support_flags(self):
         return self._message_part_support_flags
