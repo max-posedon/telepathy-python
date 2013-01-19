@@ -44,6 +44,7 @@ from telepathy.interfaces import (CONN_INTERFACE,
                                   CONNECTION_INTERFACE_CONTACT_LIST,
                                   CONNECTION_INTERFACE_MAIL_NOTIFICATION,
                                   CONNECTION_INTERFACE_REQUESTS,
+                                  CONNECTION_INTERFACE_SIMPLE_PRESENCE,
                                   CHANNEL_INTERFACE)
 from telepathy.server.handle import Handle, NoneHandle
 from telepathy.server.properties import DBusProperties
@@ -611,7 +612,25 @@ from telepathy._generated.Connection_Interface_Presence \
         import ConnectionInterfacePresence
 
 from telepathy._generated.Connection_Interface_Simple_Presence \
-        import ConnectionInterfaceSimplePresence
+        import ConnectionInterfaceSimplePresence as _ConnectionInterfaceSimplePresence
+
+class ConnectionInterfaceSimplePresence(_ConnectionInterfaceSimplePresence, DBusProperties):
+
+    _statuses = {}
+    _maximum_status_message_length = 0
+
+    def __init__(self):
+        _ConnectionInterfaceSimplePresence.__init__(self)
+        self._implement_property_get(CONNECTION_INTERFACE_SIMPLE_PRESENCE, {
+                'Statuses': lambda: dbus.Dictionary(self._get_statuses(), signature='s(ubb)'),
+                'MaximumStatusMessageLength': lambda: dbus.UInt32(self._get_maximum_status_message_length()),
+        })
+
+    def _get_statuses(self):
+        return self._statuses
+
+    def _get_maximum_status_message_length(self):
+        return self._maximum_status_message_length
 
 from telepathy._generated.Connection_Interface_Contacts \
         import ConnectionInterfaceContacts as _ConnectionInterfaceContacts
