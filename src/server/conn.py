@@ -336,8 +336,16 @@ class Connection(_Connection, DBusProperties):
 
 
 from telepathy._generated.Connection_Interface_Aliasing \
-        import ConnectionInterfaceAliasing
+        import ConnectionInterfaceAliasing as _ConnectionInterfaceAliasing
 
+class ConnectionInterfaceAliasing(_ConnectionInterfaceAliasing):
+    _alias_flags = 0
+
+    def __init__(self):
+        _ConnectionInterfaceAliasing.__init__(self)
+
+    def GetAliasFlags(self):
+        return dbus.UInt32(self._alias_flags)
 
 from telepathy._generated.Connection_Interface_Avatars \
         import ConnectionInterfaceAvatars
