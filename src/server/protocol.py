@@ -24,6 +24,7 @@ from telepathy.constants import (CONN_MGR_PARAM_FLAG_REQUIRED,
                                  CONN_MGR_PARAM_FLAG_HAS_DEFAULT)
 from telepathy.errors import InvalidArgument, NotImplemented
 from telepathy.interfaces import (PROTOCOL,
+                                  PROTOCOL_INTERFACE_AVATARS,
                                   PROTOCOL_INTERFACE_PRESENCE)
 from telepathy.server.properties import DBusProperties
 
@@ -197,3 +198,68 @@ class ProtocolInterfacePresence(_ProtocolInterfacePresence):
     @property
     def statuses(self):
         return dbus.Dictionary(self._statuses, signature='s(ubb)')
+
+
+from telepathy._generated.Protocol_Interface_Avatars \
+        import ProtocolInterfaceAvatars \
+        as _ProtocolInterfaceAvatars
+
+class ProtocolInterfaceAvatars(_ProtocolInterfaceAvatars, DBusProperties):
+
+    _supported_avatar_mime_types = []
+    _minimum_avatar_height = 0
+    _minimum_avatar_width = 0
+    _recommended_avatar_height = 0
+    _recommended_avatar_width = 0
+    _maximum_avatar_height = 0
+    _maximum_avatar_width = 0
+    _maximum_avatar_bytes = 0
+
+    def __init__(self):
+        _ProtocolInterfaceAvatars.__init__(self)
+
+        self._implement_property_get(PROTOCOL_INTERFACE_AVATARS, {
+            'SupportedAvatarMIMETypes': lambda: dbus.Array(self._get_supported_avatar_mime_types(), signature='s'),
+            'MinimumAvatarHeight': lambda: dbus.UInt32(self._get_minimum_avatar_height()),
+            'MinimumAvatarWidth': lambda: dbus.UInt32(self._get_minimum_avatar_width()),
+            'RecommendedAvatarHeight': lambda: dbus.UInt32(self._get_recommended_avatar_width()),
+            'RecommendedAvatarWidth': lambda: dbus.UInt32(self._get_recommended_avatar_height()),
+            'MaximumAvatarHeight': lambda: dbus.UInt32(self._get_maximum_avatar_height()),
+            'MaximumAvatarWidth': lambda: dbus.UInt32(self._get_maximum_avatar_width()),
+            'MaximumAvatarBytes': lambda: dbus.UInt32(self._get_maximum_avatar_bytes()),
+        })
+
+        self._add_immutable_properties({
+            'SupportedAvatarMIMETypes': PROTOCOL_INTERFACE_AVATARS,
+            'MinimumAvatarHeight': PROTOCOL_INTERFACE_AVATARS,
+            'MinimumAvatarWidth': PROTOCOL_INTERFACE_AVATARS,
+            'RecommendedAvatarHeight': PROTOCOL_INTERFACE_AVATARS,
+            'RecommendedAvatarWidth': PROTOCOL_INTERFACE_AVATARS,
+            'MaximumAvatarHeight': PROTOCOL_INTERFACE_AVATARS,
+            'MaximumAvatarWidth': PROTOCOL_INTERFACE_AVATARS,
+            'MaximumAvatarBytes': PROTOCOL_INTERFACE_AVATARS,
+        })
+
+    def _get_supported_avatar_mime_types(self):
+        return self._supported_avatar_mime_types
+
+    def _get_minimum_avatar_height(self):
+        return self._minimum_avatar_height
+
+    def _get_minimum_avatar_width(self):
+        return self._minimum_avatar_width
+
+    def _get_recommended_avatar_height(self):
+        return self._recommended_avatar_height
+
+    def _get_recommended_avatar_width(self):
+        return self._recommended_avatar_width
+
+    def _get_maximum_avatar_height(self):
+        return self._maximum_avatar_height
+
+    def _get_maximum_avatar_width(self):
+        return self._maximum_avatar_width
+
+    def _get_maximum_avatar_bytes(self):
+        return self._maximum_avatar_bytes

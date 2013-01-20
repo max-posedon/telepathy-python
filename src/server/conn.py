@@ -39,6 +39,7 @@ from telepathy.interfaces import (CONN_INTERFACE,
                                   CONN_INTERFACE_CAPABILITIES,
                                   CONN_INTERFACE_PRESENCE,
                                   CONN_INTERFACE_RENAMING,
+                                  CONNECTION_INTERFACE_AVATARS,
                                   CONNECTION_INTERFACE_CONTACTS,
                                   CONNECTION_INTERFACE_CONTACT_GROUPS,
                                   CONNECTION_INTERFACE_CONTACT_LIST,
@@ -348,7 +349,57 @@ class ConnectionInterfaceAliasing(_ConnectionInterfaceAliasing):
         return dbus.UInt32(self._alias_flags)
 
 from telepathy._generated.Connection_Interface_Avatars \
-        import ConnectionInterfaceAvatars
+        import ConnectionInterfaceAvatars \
+        as _ConnectionInterfaceAvatars
+
+class ConnectionInterfaceAvatars(_ConnectionInterfaceAvatars, DBusProperties):
+
+    _supported_avatar_mime_types = []
+    _minimum_avatar_height = 0
+    _minimum_avatar_width = 0
+    _recommended_avatar_height = 0
+    _recommended_avatar_width = 0
+    _maximum_avatar_height = 0
+    _maximum_avatar_width = 0
+    _maximum_avatar_bytes = 0
+
+    def __init__(self):
+        _ConnectionInterfaceAvatars.__init__(self)
+
+        self._implement_property_get(CONNECTION_INTERFACE_AVATARS, {
+            'SupportedAvatarMIMETypes': lambda: dbus.Array(self._get_supported_avatar_mime_types(), signature='s'),
+            'MinimumAvatarHeight': lambda: dbus.UInt32(self._get_minimum_avatar_height()),
+            'MinimumAvatarWidth': lambda: dbus.UInt32(self._get_minimum_avatar_width()),
+            'RecommendedAvatarHeight': lambda: dbus.UInt32(self._get_recommended_avatar_width()),
+            'RecommendedAvatarWidth': lambda: dbus.UInt32(self._get_recommended_avatar_height()),
+            'MaximumAvatarHeight': lambda: dbus.UInt32(self._get_maximum_avatar_height()),
+            'MaximumAvatarWidth': lambda: dbus.UInt32(self._get_maximum_avatar_width()),
+            'MaximumAvatarBytes': lambda: dbus.UInt32(self._get_maximum_avatar_bytes()),
+        })
+
+    def _get_supported_avatar_mime_types(self):
+        return self._supported_avatar_mime_types
+
+    def _get_minimum_avatar_height(self):
+        return self._minimum_avatar_height
+
+    def _get_minimum_avatar_width(self):
+        return self._minimum_avatar_width
+
+    def _get_recommended_avatar_height(self):
+        return self._recommended_avatar_height
+
+    def _get_recommended_avatar_width(self):
+        return self._recommended_avatar_width
+
+    def _get_maximum_avatar_height(self):
+        return self._maximum_avatar_height
+
+    def _get_maximum_avatar_width(self):
+        return self._maximum_avatar_width
+
+    def _get_maximum_avatar_bytes(self):
+        return self._maximum_avatar_bytes
 
 
 from telepathy._generated.Connection_Interface_Capabilities \
