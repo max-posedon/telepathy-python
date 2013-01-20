@@ -42,6 +42,7 @@ from telepathy.interfaces import (CONN_INTERFACE,
                                   CONNECTION_INTERFACE_AVATARS,
                                   CONNECTION_INTERFACE_CONTACTS,
                                   CONNECTION_INTERFACE_CONTACT_GROUPS,
+                                  CONNECTION_INTERFACE_CONTACT_INFO,
                                   CONNECTION_INTERFACE_CONTACT_LIST,
                                   CONNECTION_INTERFACE_MAIL_NOTIFICATION,
                                   CONNECTION_INTERFACE_REQUESTS,
@@ -805,3 +806,26 @@ class ConnectionInterfaceContactGroups(_ConnectionInterfaceContactGroups, DBusPr
 
     def _get_groups(self):
         return self._groups
+
+from telepathy._generated.Connection_Interface_Contact_Info \
+        import ConnectionInterfaceContactInfo as _ConnectionInterfaceContactInfo
+
+class ConnectionInterfaceContactInfo(_ConnectionInterfaceContactInfo, DBusProperties):
+
+    _contact_info_flags = 0
+    _supported_fields = []
+
+    def __init__(self):
+        _ConnectionInterfaceContactInfo.__init__(self)
+        DBusProperties.__init__(self)
+
+        self._implement_property_get(CONNECTION_INTERFACE_CONTACT_INFO, {
+            'ContactInfoFlags': lambda: dbus.UInt32(self._get_contact_info_flags()),
+            'SupportedFields': lambda: dbus.Array(self._get_supported_fields(), signature='sasuu'),
+        })
+
+    def _get_contact_info_flags(self):
+        return self._contact_info_flags
+
+    def _get_supported_fields(self):
+        return self._supported_fields
