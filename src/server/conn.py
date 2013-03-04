@@ -40,6 +40,7 @@ from telepathy.interfaces import (CONN_INTERFACE,
                                   CONN_INTERFACE_PRESENCE,
                                   CONN_INTERFACE_RENAMING,
                                   CONNECTION_INTERFACE_AVATARS,
+                                  CONNECTION_INTERFACE_BALANCE,
                                   CONNECTION_INTERFACE_CONTACTS,
                                   CONNECTION_INTERFACE_CONTACT_GROUPS,
                                   CONNECTION_INTERFACE_CONTACT_INFO,
@@ -829,3 +830,26 @@ class ConnectionInterfaceContactInfo(_ConnectionInterfaceContactInfo, DBusProper
 
     def _get_supported_fields(self):
         return self._supported_fields
+
+from telepathy._generated.Connection_Interface_Balance \
+        import ConnectionInterfaceBalance as _ConnectionInterfaceBalance
+
+class ConnectionInterfaceBalance(_ConnectionInterfaceBalance, DBusProperties):
+
+    _account_balance = (0, 2**32-1, '')
+    _manage_credit_uri = ''
+
+    def __init__(self):
+        _ConnectionInterfaceBalance.__init__(self)
+        DBusProperties.__init__(self)
+
+        self._implement_property_get(CONNECTION_INTERFACE_BALANCE, {
+            'AccountBalance': lambda: dbus.Struct(self._get_account_balance(), signature='ius'),
+            'ManageCreditURI': lambda: dbus.String(self._get_manage_credit_uri()),
+        })
+
+    def _get_account_balance(self):
+        return self._account_balance
+
+    def _get_manage_credit_uri(self):
+        return self._manage_credit_uri
