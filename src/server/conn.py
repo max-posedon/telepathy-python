@@ -700,6 +700,11 @@ class ConnectionInterfaceContacts(_ConnectionInterfaceContacts, DBusProperties):
 
     _contact_attribute_interfaces = {
         CONN_INTERFACE : 'contact-id',
+        CONN_INTERFACE_ALIASING : 'alias',
+        CONNECTION_INTERFACE_SIMPLE_PRESENCE : 'presence',
+        CONN_INTERFACE_ALIASING : 'alias',
+        CONN_INTERFACE_AVATARS : 'token',
+        CONNECTION_INTERFACE_CONTACT_INFO : 'info'
     }
 
     def __init__(self):
@@ -716,7 +721,7 @@ class ConnectionInterfaceContacts(_ConnectionInterfaceContacts, DBusProperties):
     def GetContactAttributes(self, handles, interfaces, hold):
         supported_interfaces = set()
         for interface in interfaces:
-            if interface in self.attributes:
+            if interface in self.get_contact_attribute_interfaces():
                 supported_interfaces.add(interface)
 
         handle_type = HANDLE_TYPE_CONTACT
@@ -726,6 +731,10 @@ class ConnectionInterfaceContacts(_ConnectionInterfaceContacts, DBusProperties):
 
         functions = {
             CONN_INTERFACE: lambda x: zip(x, self.InspectHandles(handle_type, x)),
+            CONNECTION_INTERFACE_SIMPLE_PRESENCE: lambda x: self.GetPresences(x).items(),
+            CONN_INTERFACE_ALIASING: lambda x: self.GetAliases(x).items(),
+            CONN_INTERFACE_AVATARS: lambda x: self.GetKnownAvatarTokens(x).items(),
+            CONNECTION_INTERFACE_CONTACT_INFO: lambda x: self.GetContactInfo(x).items()
         }
 
         supported_interfaces.add(CONN_INTERFACE)
@@ -743,15 +752,15 @@ from telepathy._generated.Connection_Interface_Contact_List \
 
 class ConnectionInterfaceContactList(_ConnectionInterfaceContactList, DBusProperties):
 
+    _contact_list_state = CONTACT_LIST_STATE_NONE
+    _contact_list_persists = True
+    _can_change_contact_list = False
+    _request_uses_message = False
+    _download_at_connection = True
+
     def __init__(self):
         _ConnectionInterfaceContactList.__init__(self)
         DBusProperties.__init__(self)
-
-        self._contact_list_state = CONTACT_LIST_STATE_NONE
-        self._contact_list_persists = True
-        self._can_change_contact_list = False
-        self._request_uses_message = False
-        self._download_at_connection = True
 
         self._implement_property_get(CONNECTION_INTERFACE_CONTACT_LIST, {
             'ContactListState': lambda: dbus.UInt32(self._get_contact_list_state()),
@@ -822,7 +831,9 @@ class ConnectionInterfaceContactInfo(_ConnectionInterfaceContactInfo, DBusProper
 
         self._implement_property_get(CONNECTION_INTERFACE_CONTACT_INFO, {
             'ContactInfoFlags': lambda: dbus.UInt32(self._get_contact_info_flags()),
-            'SupportedFields': lambda: dbus.Array(self._get_supported_fields(), signature='sasuu'),
+            'SupportedFields': lambda: dbus.Array(
+                map(lambda field: dbus.Struct((field[0],dbus.Array(field[1], signature='s'), field[3], field[4]), signature='sasuu'), self._get_supported_fields()), 
+                signature='sasuu'),
         })
 
     def _get_contact_info_flags(self):
