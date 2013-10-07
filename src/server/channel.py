@@ -483,7 +483,7 @@ class ChannelInterfaceMessages(_ChannelInterfaceMessages):
     _supported_content_types = []
     _message_types = [CHANNEL_TEXT_MESSAGE_TYPE_NORMAL]
     _message_part_support_flags = 0
-    _pending_messages = {}
+    _pending_IM_messages = {}
     _delivery_reporting_support = 0
 
     def __init__(self):
@@ -512,7 +512,7 @@ class ChannelInterfaceMessages(_ChannelInterfaceMessages):
         return self._message_part_support_flags
 
     def _get_pending_messages(self):
-        return self._pending_messages.values()
+        return self._pending_IM_messages.values()
 
     def _get_delivery_reporting_support(self):
         return self._delivery_reporting_support
@@ -520,4 +520,4 @@ class ChannelInterfaceMessages(_ChannelInterfaceMessages):
     @dbus.service.signal(CHANNEL_INTERFACE_MESSAGES, signature='aa{sv}')
     def MessageReceived(self, message):
         id = message[0]['pending-message-id']
-        self._pending_messages[id] = dbus.Array(message, signature='a{sv}')
+        self._pending_IM_messages[id] = dbus.Array(message, signature='a{sv}')
